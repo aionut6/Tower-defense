@@ -10,7 +10,7 @@ Tower::Tower(std::string type, int damage, int range, int cost, const Position& 
 }
 
 // --- Getteri ---
-std::string Tower::getType() const {
+const std::string& Tower::getType() const {
     return type;
 }
 

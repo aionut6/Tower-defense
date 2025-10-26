@@ -8,8 +8,7 @@ private:
 
 public:
 
-    Position(int x = 0, int y = 0);
-
+    explicit Position(int x = 0, int y = 0); // Valori implicite
 
     int getX() const;
     int getY() const;

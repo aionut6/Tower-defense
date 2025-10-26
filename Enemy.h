@@ -15,7 +15,7 @@ public:
     Enemy(std::string type, int health, int speed, const Position& startPos);
 
     // Getteri (pentru a putea citi starea din exterior)
-    std::string getType() const;
+    const std::string& getType() const; // Returnează prin referință constantă
     int getHealth() const;
     Position getPosition() const;
 

@@ -6,7 +6,7 @@ Enemy::Enemy(std::string type, int health, int speed, const Position& startPos)
     : type(std::move(type)), health(health), speed(speed), currentPosition(startPos) {
 }
 
-std::string Enemy::getType() const {
+const std::string& Enemy::getType() const {
     return type;
 }
 

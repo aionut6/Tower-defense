@@ -24,7 +24,7 @@ public:
     Tower(std::string type, int damage, int range, int cost, const Position& pos);
 
     // Getteri
-    std::string getType() const;
+    const std::string& getType() const; // Returnează prin referință constantă
     int getCost() const;
     Position getPosition() const; // Util pentru clasa GameMap
 
