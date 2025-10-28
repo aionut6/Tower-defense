@@ -24,8 +24,6 @@ int main() {
 
     //adaugam blestemul pe harta
     map.spawnEnemy(blestem1); //in raza ambilor vrajitori
-
-
     map.spawnEnemy(Enemy("Blestem Grad 2", 300, 2, Position(500, 500))); //in afara razei
 
     std::cout << map;
