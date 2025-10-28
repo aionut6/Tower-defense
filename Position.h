@@ -8,10 +8,11 @@ private:
 
 public:
 
-    explicit Position(int x = 0, int y = 0); // Valori implicite
+    explicit Position(int x = 0, int y = 0);
+    //getteri pt x si y
+    [[nodiscard]]int getX() const;
+    [[nodiscard]]int getY() const;
 
-    int getX() const;
-    int getY() const;
-
+//implementarea <<
     friend std::ostream& operator<<(std::ostream& os, const Position& pos);
 };

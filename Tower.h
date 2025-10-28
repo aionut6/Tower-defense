@@ -1,37 +1,31 @@
-// Tower.h
-
 #pragma once
 #include <iostream>
 #include <string>
-#include <cmath>
 #include "Position.h"
 #include "Enemy.h"
 
-class Tower {
+class Tower { //sorcerer
 private:
-    std::string type;
+    std::string type;//"Grade 3", "Special Grade" etc
     int damage;
-    int range;
+    int range; //raza tehnicii
     int cost;
     Position placement;
 
-    // Funcție privată ajutătoare (cerința de funcții private)
-    // Verifică dacă un inamic e în raza de acțiune
-    bool isEnemyInRange(const Enemy& enemy) const;
+    //verifica daca inamicul e in raza turnului
+    [[nodiscard]] bool isEnemyInRange(const Enemy& enemy) const;
 
 public:
-    // Constructor cu parametri
+    //constructor
     Tower(std::string type, int damage, int range, int cost, const Position& pos);
 
-    // Getteri
-    const std::string& getType() const; // Returnează prin referință constantă
-    int getCost() const;
-    Position getPosition() const; // Util pentru clasa GameMap
+    //getteri
+    [[nodiscard]] const std::string& getType() const;
+    [[nodiscard]] int getCost() const;
+    [[nodiscard]] Position getPosition() const;
 
-    // Funcție de "logică" (cerința de funcție netrivială)
-    // Încearcă să atace un inamic.
+    //ataca un inamic
     void attack(Enemy& enemy) const;
 
-    // Operatorul << pentru afișare
     friend std::ostream& operator<<(std::ostream& os, const Tower& tower);
 };

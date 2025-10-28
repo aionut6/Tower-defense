@@ -1,10 +1,9 @@
 #pragma once
 
 #include <iostream>
-#include <vector>     // Vom folosi vectori pentru a ține evidența
-#include <string>
-#include "Tower.h"    // Harta ARE turnuri
-#include "Enemy.h"    // Harta ARE inamici
+#include <vector>     //evidenta
+#include "Tower.h"    //are turnuri
+#include "Enemy.h"    //are inamici
 
 class GameMap {
 private:
@@ -13,33 +12,29 @@ private:
     int playerLives;
     int playerMoney;
 
-    // --- COMPUNEREA PRINCIPALĂ ---
     std::vector<Tower> towers;
     std::vector<Enemy> enemies;
 
 public:
-    // --- Constructor / Destructor ---
     GameMap(int width, int height, int startLives, int startMoney);
 
-    // --- CERINȚA 3: REGULA CELOR 3 ---
-    // 1. Destructor
+    //regula celor 3
+
+    //destructor
     ~GameMap();
-    // 2. Constructor de copiere
+    //constructor de copiere
     GameMap(const GameMap& other);
-    // 3. Operator de atribuire (asignare) prin copiere
+    //operator de atribuire (asignare) prin copiere
     GameMap& operator=(const GameMap& other);
 
-    // --- CERINȚA 6: Funcții Netriviale ---
-
-    // Adaugă un turn pe hartă dacă sunt bani și e loc
+    //daca sunt bani si loc pe harta adauga turn
     bool buildTower(const Tower& newTower);
 
-    // Adaugă un inamic nou pe hartă
+    //adauga inamic
     void spawnEnemy(const Enemy& newEnemy);
 
-    // Funcția principală care simulează o rundă de joc
+    //simularea unei runde
     void updateGame();
 
-    // --- CERINȚA 4: Operatorul << ---
     friend std::ostream& operator<<(std::ostream& os, const GameMap& map);
 };

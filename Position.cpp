@@ -5,16 +5,16 @@ Position::Position(int x, int y) : x(x), y(y) {
 
 }
 
-//getter pentru x
+//getteri pt x si y
 int Position::getX() const {
     return x;
 }
 
-//getter pentru y
 int Position::getY() const {
     return y;
 }
 
+//implementarea <<
 std::ostream& operator<<(std::ostream& os, const Position& pos) {
     os << "(" << pos.x << ", " << pos.y << ")";
     return os;
