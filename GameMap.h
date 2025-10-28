@@ -1,9 +1,9 @@
 #pragma once
 
 #include <iostream>
-#include <vector>     //evidenta
-#include "Tower.h"    //are turnuri
-#include "Enemy.h"    //are inamici
+#include <vector>
+#include "Tower.h"
+#include "Enemy.h"
 
 class GameMap {
 private:
@@ -15,16 +15,14 @@ private:
     std::vector<Tower> towers;
     std::vector<Enemy> enemies;
 
+    std::vector<std::vector<char>> grid;
+
 public:
     GameMap(int width, int height, int startLives, int startMoney);
 
     //regula celor 3
-
-    //destructor
     ~GameMap();
-    //constructor de copiere
     GameMap(const GameMap& other);
-    //operator de atribuire (asignare) prin copiere
     GameMap& operator=(const GameMap& other);
 
     //daca sunt bani si loc pe harta adauga turn

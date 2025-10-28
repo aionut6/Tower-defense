@@ -1,131 +1,143 @@
 #include "GameMap.h"
 #include <iostream>
 #include <algorithm>
+#include <vector>
 
 GameMap::GameMap(int width, int height, int startLives, int startMoney)
-    : width(width), height(height), playerLives(startLives), playerMoney(startMoney) {
-    //towers si enemies sunt automat goi
-    std::cout << "Harta jocului a fost creata." << std::endl;
+    : width(width),
+      height(height),
+      playerLives(startLives),
+      playerMoney(startMoney)
+{
+    // initializam grila
+    grid.resize(height, std::vector<char>(width, '.')); // Umplem grila cu '.'
+    std::cout << "Harta (grila) " << width << "x" << height << " a fost creata." << std::endl;
 }
 
-//regula celor 3
 GameMap::~GameMap() {
     std::cout << "Harta jocului a fost distrusa." << std::endl;
 }
 
-//constructor de copiere
 GameMap::GameMap(const GameMap& other)
-    : width(other.width), height(other.height),
-      playerLives(other.playerLives), playerMoney(other.playerMoney),
-      towers(other.towers), enemies(other.enemies) {
-
+    : width(other.width),
+      height(other.height),
+      playerLives(other.playerLives),
+      playerMoney(other.playerMoney),
+      towers(other.towers),
+      enemies(other.enemies),
+      grid(other.grid)
+{
     std::cout << "Harta jocului a fost COPIATA (Copy Constructor)." << std::endl;
 }
 
 GameMap& GameMap::operator=(const GameMap& other) {
     std::cout << "Harta jocului a fost ATRIBUITA (Copy Assignment)." << std::endl;
-
     if (this == &other) {
         return *this;
     }
-
     width = other.width;
     height = other.height;
     playerLives = other.playerLives;
     playerMoney = other.playerMoney;
-
     towers = other.towers;
     enemies = other.enemies;
+    grid = other.grid; // Adaugam copierea grilei
 
     return *this;
 }
 
-//construirea unui turn
 bool GameMap::buildTower(const Tower& newTower) {
-    //verifica daca jucatorul are suficienti bani
     if (playerMoney >= newTower.getCost()) {
-        //verifica daca se afla alt turn pe acea pozitie
-        bool locationOk = true;
-        for (const Tower& existingTower : towers) {
-            if (existingTower.getPosition().getX() == newTower.getPosition().getX() &&
-                existingTower.getPosition().getY() == newTower.getPosition().getY()) {
-                locationOk = false;
-                std::cout << "EROARE: Locatie deja ocupata de un turn!" << std::endl;
-                break;
-            }
-        }
+        int x = newTower.getPosition().getX();
+        int y = newTower.getPosition().getY();
 
-        if (locationOk) {
-            //scade banii si adauga turnul
+        //daca pozitia e valida
+        if (y >= 0 && y < height && x >= 0 && x < width && grid[y][x] == '.') {
+            //locul e liber construim
             playerMoney -= newTower.getCost();
-            towers.push_back(newTower); //adaugă o copie a turnului în vector
-            std::cout << "Turn " << newTower.getType() << " construit! Bani ramasi: " << playerMoney << std::endl;
+            towers.push_back(newTower);
+            grid[y][x] = 'T';
+            std::cout << "Vrajitor " << newTower.getType() << " plasat! Bani ramasi: " << playerMoney << std::endl;
             return true;
+        } else {
+            std::cout << "EROARE: Pozitie invalida sau ocupata de alt Vrajitor!" << std::endl;
         }
     } else {
         std::cout << "EROARE: Fonduri insuficiente pentru " << newTower.getType() << std::endl;
     }
-
-    return false; //construirea a eșuat
+    return false;
 }
 
-//adaugarea unui inamic
 void GameMap::spawnEnemy(const Enemy& newEnemy) {
-    enemies.push_back(newEnemy); // Adaugă o copie a inamicului
-    std::cout << "Un " << newEnemy.getType() << " a intrat pe harta!" << std::endl;
+    enemies.push_back(newEnemy);
+    std::cout << "Un blestem " << newEnemy.getType() << " a aparut pe harta!" << std::endl;
 }
 
 void GameMap::updateGame() {
     std::cout << "\n--- ACTUALIZARE RUNDA ---" << std::endl;
 
-    //turnurile atacă inamicii
+    // vrajitorii ataca
     for (const Tower& tower : towers) {
-        //fiecare turn iterează prin toți inamicii
         for (Enemy& enemy : enemies) {
             tower.attack(enemy);
         }
     }
 
-    // TODO muta inamicii
-    // for (Enemy& enemy : enemies) { enemy.move(); }
+    // blestemele se misca
+    for (Enemy& enemy : enemies) {
+        if (enemy.getHealth() <= 0) continue;
 
-    //curata inamicii morti
+        int x = enemy.getPosition().getX();
+        int y = enemy.getPosition().getY();
+        int newX = x + enemy.getSpeed();
+
+        //verificam daca a iesit de pe harta
+        if (newX >= width) {
+            playerLives--; //jucatorul pierde hp
+            enemy.takeDamage(9999); //omoram inamicul
+            std::cout << "Un blestem a ajuns la baza! Vieti ramase: " << playerLives << std::endl;
+        } else {
+            //muta inamicul
+            enemy.setPosition(Position(newX, y));
+        }
+    }
+
+    //curatam blestemele moarte
     auto it = std::ranges::remove_if(enemies,
                                      [](const Enemy& e) {
-                                         //returneaza true daca inamicul a fost eliminat
                                          return e.getHealth() <= 0;
                                      }).begin();
 
-    //verificam daca am mai gasit inamici morti
     if (it != enemies.end()) {
-        std::cout << "Eliminam inamicii morti..." << std::endl;
+        std::cout << "Eliminam blestemele invinse..." << std::endl;
         enemies.erase(it, enemies.end());
     }
 }
 
 std::ostream& operator<<(std::ostream& os, const GameMap& map) {
-    os << "====== STARE HARTA ======\n";
-    os << "Dimensiuni: " << map.width << "x" << map.height << "\n";
-    os << "Viata Bazei: " << map.playerLives << "\n";
-    os << "Bani: " << map.playerMoney << "\n";
+    std::vector<std::vector<char>> tempGrid = map.grid;
 
-
-    os << "\n--- Turnuri (" << map.towers.size() << ") ---\n";
-    if (map.towers.empty()) {
-        os << "Niciun turn construit.\n";
-    } else {
-        for (const Tower& t : map.towers) {
-            os << t << "\n";
+    //punem toti inamicii pe grila temporara
+    for (const Enemy& e : map.enemies) {
+        int x = e.getPosition().getX();
+        int y = e.getPosition().getY();
+        //verificam sa fim in interiorul hartii
+        if (y >= 0 && y < map.height && x >= 0 && x < map.width) {
+            tempGrid[y][x] = 'B'; // 'B' de la Blestem
         }
     }
 
-    os << "\n--- Inamici (" << map.enemies.size() << ") ---\n";
-    if (map.enemies.empty()) {
-        os << "Niciun inamic pe harta.\n";
-    } else {
-        for (const Enemy& e : map.enemies) {
-            os << e << "\n";
+    //afisam starea si grila
+    os << "====== STAREA HARTII ======\n";
+    os << "Vieti: " << map.playerLives << " | Bani: " << map.playerMoney;
+    os << " | Vrajitori: " << map.towers.size() << " | Blesteme: " << map.enemies.size() << "\n";
+
+    //desenam grila
+    for (int y = 0; y < map.height; ++y) {
+        for (int x = 0; x < map.width; ++x) {
+            os << tempGrid[y][x];
         }
+        os << "\n";
     }
     os << "===========================\n";
     return os;

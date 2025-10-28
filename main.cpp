@@ -5,55 +5,48 @@
 #include "GameMap.h"  // Harta
 
 int main() {
-    //crearea mapei
-    GameMap map(800, 600, 20, 1000);
+    //crearea mapei (cu dimensiuni mici, de grila)
+    GameMap map(60, 15, 20, 1000); // 60 latime, 15 inaltime
 
-    Tower grade2Sorcerer("Vrajitor Grad 2", 30, 100, 100, Position(50, 50));
-    map.buildTower(grade2Sorcerer);
+    // Plasam vrajitorii (pozitiile sunt acum in grila 60x15)
+    map.buildTower(Tower("Vrajitor Grad 2", 30, 10, 100, Position(5, 7))); // (x=5, y=7)
+    map.buildTower(Tower("Vrajitor Grad 1", 80, 5, 250, Position(5, 9)));  // (x=5, y=9)
 
-    Tower grade1Sorcerer("Vrajitor Grad 1", 80, 70, 250, Position(100, 100));
-    map.buildTower(grade1Sorcerer);
+    // Incercam sa plasam unul peste altul (trebuie sa esueze)
+    map.buildTower(Tower("Vrajitor Dublura", 10, 10, 10, Position(5, 7)));
 
-    map.buildTower(Tower("Gojo Satoru (Special)", 999, 999, 5000, Position(10, 10))); //energie insuficienta
+    // Apar blestemele la marginea din stanga (x=0)
+    map.spawnEnemy(Enemy("Blestem Grad 3", 100, 1, Position(0, 7))); // Pe randul 7
+    map.spawnEnemy(Enemy("Blestem Grad 2", 300, 2, Position(0, 12)));// Pe randul 12
 
-    Enemy blestem1("Blestem Grad 3", 100, 5, Position(70, 70));
+    std::cout << map; // Afiseaza grila initiala
 
-    std::cout << "--- Testare slow: Viteza initiala: " << blestem1.getSpeed() << " ---" << std::endl;
-    blestem1.setSpeed(2); //ii dam slow
-    std::cout << "--- Viteza redusa la: " << blestem1.getSpeed() << " ---" << std::endl;
-
-    //adaugam blestemul pe harta
-    map.spawnEnemy(blestem1); //in raza ambilor vrajitori
-    map.spawnEnemy(Enemy("Blestem Grad 2", 300, 2, Position(500, 500))); //in afara razei
-
+    // Simulam 3 runde
+    map.updateGame();
     std::cout << map;
 
-    map.updateGame(); // Blestemul Grad 3 ar trebui sa ia damage (30 + 80 = 110) si e invins.
-    std::cout << map; // Arata starea dupa atac. Blestemul e mort.
+    map.updateGame();
+    std::cout << map;
 
-    map.updateGame(); // Runda 2. Blestemele moarte (Grad 3) ar trebui sa dispara.
-    std::cout << map; // Arata starea dupa curatare. Doar Blestemul Grad 2 a ramas.
-
-    //regula celor 3
+    //regula celor 3 (ramane la fel)
     std::cout << "\n\n--- TESTARE REGULA CELOR 3 ---" << std::endl;
     //constructor de copiere
     std::cout << "--- Se apeleaza Constructorul de Copiere ---" << std::endl;
     GameMap mapCopiata = map;
-    mapCopiata.spawnEnemy(Enemy("Mahito (Special)", 500, 1, Position(1,1))); //adauga un blestem doar pe copie
+    mapCopiata.spawnEnemy(Enemy("Mahito (Special)", 500, 1, Position(0,1))); //adauga un blestem doar pe copie
 
-    std::cout << "\n--- Harta Originala (are 1 blestem) ---" << std::endl;
+    std::cout << "\n--- Harta Originala ---" << std::endl;
     std::cout << map;
-    std::cout << "\n--- Harta Copiata (are 2 blesteme) ---" << std::endl;
-    std::cout << mapCopiata;
+    std::cout << "\n--- Harta Copiata ---" << std::endl;
+    std::cout << mapCopiata; // Va afisa grila copiata, cu Mahito pe ea
 
+    // ... (restul testului Regula celor 3 ramane la fel) ...
     std::cout << "\n--- Se apeleaza Operatorul de Atribuire ---" << std::endl;
     GameMap mapAtribuita(1,1,1,1);
     mapAtribuita = map;
-
     std::cout << "\n--- Harta Atribuita (arata ca originala) ---" << std::endl;
     std::cout << mapAtribuita;
 
     std::cout << "\n--- Sfarsit main() ---" << std::endl;
-    //Test Destructor, distruge toate 3 hartile
     return 0;
 }

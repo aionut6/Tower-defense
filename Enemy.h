@@ -5,7 +5,7 @@
 
 class Enemy { //class Curse
 private:
-    std::string type; //"Grade 3", "Special Grade"
+    std::string type; //"Grade 3", "Special Grade" etc
     int health;
     int speed;
     Position currentPosition;
@@ -21,10 +21,12 @@ public:
 
     //actiuni
     void takeDamage(int damageAmount);
-    void move();
 
     //functiue pt slow/freeze
     void setSpeed(int newSpeed);
+
+    // functie publica noua: Harta o va folosi pentru a muta blestemul
+    void setPosition(const Position& newPos);
 
     friend std::ostream& operator<<(std::ostream& os, const Enemy& enemy);
 };
