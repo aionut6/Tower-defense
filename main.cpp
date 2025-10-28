@@ -16,7 +16,16 @@ int main() {
 
     map.buildTower(Tower("Gojo Satoru (Special)", 999, 999, 5000, Position(10, 10))); //energie insuficienta
 
-    map.spawnEnemy(Enemy("Blestem Grad 3", 100, 5, Position(70, 70))); //in raza ambilor vrajitori
+    Enemy blestem1("Blestem Grad 3", 100, 5, Position(70, 70));
+
+    std::cout << "--- Testare slow: Viteza initiala: " << blestem1.getSpeed() << " ---" << std::endl;
+    blestem1.setSpeed(2); //ii dam slow
+    std::cout << "--- Viteza redusa la: " << blestem1.getSpeed() << " ---" << std::endl;
+
+    //adaugam blestemul pe harta
+    map.spawnEnemy(blestem1); //in raza ambilor vrajitori
+
+
     map.spawnEnemy(Enemy("Blestem Grad 2", 300, 2, Position(500, 500))); //in afara razei
 
     std::cout << map;
