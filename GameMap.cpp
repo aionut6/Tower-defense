@@ -82,7 +82,7 @@ void GameMap::spawnEnemy(std::string type, int health, int moveCooldown) {
 // Functie noua
 void GameMap::rewardPlayerForRound() {
     // Exemplu: dam 10 XP pentru fiecare blestem ramas pe harta
-    int xpReward = enemies.size() * 10;
+    int xpReward = static_cast<int>(enemies.size()) * 10;
     if (xpReward > 0) {
         player.gainExperience(xpReward);
     }
@@ -129,7 +129,23 @@ void GameMap::updateGame() {
     }
 }
 
-// Operator<< actualizat
+// IMPLEMENTARI NOI PENTRU A REPARA CPPCHECK:
+const std::string& GameMap::getPlayerName() const {
+    return player.getName(); // Apelam getterul din Player
+}
+
+int GameMap::getPlayerLevel() const {
+    return player.getLevel(); // Apelam getterul din Player
+}
+
+int GameMap::getPlayerExperience() const {
+    return player.getExperience(); // Apelam getterul din Player
+}
+
+void GameMap::usePlayerAbility(const std::string& abilityName) const {
+    player.useAbility(abilityName); // Apelam metoda din Player
+}
+
 std::ostream& operator<<(std::ostream& os, const GameMap& map) {
     std::vector<std::vector<char>> tempGrid = map.grid;
     for (const Enemy& e : map.enemies) {

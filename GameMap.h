@@ -34,5 +34,10 @@ public:
     // Functie noua pentru a da XP la final de runda
     void rewardPlayerForRound();
 
+    [[nodiscard]] const std::string& getPlayerName() const;
+    [[nodiscard]] int getPlayerLevel() const;
+    [[nodiscard]] int getPlayerExperience() const;
+    void usePlayerAbility(const std::string& abilityName) const;
+
     friend std::ostream& operator<<(std::ostream& os, const GameMap& map);
 };

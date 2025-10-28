@@ -46,6 +46,12 @@ int main() {
     std::cout << "\n--- Harta Copiata ---" << std::endl;
     std::cout << mapCopiata;
 
+    std::cout << "\n--- Verificare Player (pentru Cppcheck) ---" << std::endl;
+    std::cout << "Nume Player: " << map.getPlayerName() << std::endl;
+    std::cout << "Nivel Player: " << map.getPlayerLevel() << std::endl;
+    std::cout << "Experienta Player: " << map.getPlayerExperience() << std::endl;
+    map.usePlayerAbility("Expansiunea Domeniului"); // Apelam abilitatea
+
     std::cout << "\n--- Sfarsit main() ---" << std::endl;
     return 0;
 }
