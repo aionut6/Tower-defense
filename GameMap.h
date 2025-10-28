@@ -1,26 +1,26 @@
+// GameMap.h
 #pragma once
 #include <iostream>
 #include <vector>
+#include <string> // Necesar pt numele playerului
 #include "Tower.h"
 #include "Enemy.h"
-#include "Position.h" // Necesar pentru cale
+#include "Position.h"
+#include "Player.h"
 
 class GameMap {
 private:
     int width;
     int height;
-    int playerLives;
-    int playerMoney;
-
     std::vector<Tower> towers;
     std::vector<Enemy> enemies;
     std::vector<std::vector<char>> grid;
-
-    // Calea prestabilita pentru blesteme
     std::vector<Position> enemyPath;
+    Player player; // Contine un obiect Player
 
 public:
-    GameMap(int width, int height, int startLives, int startMoney);
+    // Constructor actualizat
+    GameMap(int width, int height, std::string playerName, int startLives, int startMoney);
 
     // Regula celor 3
     ~GameMap();
@@ -28,11 +28,11 @@ public:
     GameMap& operator=(const GameMap& other);
 
     bool buildTower(const Tower& newTower);
-
-    // Functie de spawn actualizata
     void spawnEnemy(std::string type, int health, int moveCooldown);
+    void updateGame();
 
-    void updateGame(); // Aceasta devine "tick-ul" principal
+    // Functie noua pentru a da XP la final de runda
+    void rewardPlayerForRound();
 
     friend std::ostream& operator<<(std::ostream& os, const GameMap& map);
 };

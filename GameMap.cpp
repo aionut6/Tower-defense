@@ -1,22 +1,22 @@
+// GameMap.cpp
 #include "GameMap.h"
 #include <iostream>
 #include <algorithm>
 #include <vector>
 
-GameMap::GameMap(int width, int height, int startLives, int startMoney)
+// Constructor actualizat
+GameMap::GameMap(int width, int height, std::string playerName, int startLives, int startMoney)
     : width(width),
       height(height),
-      playerLives(startLives),
-      playerMoney(startMoney)
+      player(std::move(playerName), startLives, startMoney) // Initializeaza Player
 {
     grid.resize(height, std::vector<char>(width, '.'));
-
-    // Definim calea (de ex: un 'S' pe randul 5)
     for (int x = 0; x < width; ++x) {
-        enemyPath.emplace_back(x, 5); // Cale dreapta pe randul 5
-        if(height > 5) grid[5][x] = '#'; // Linia corecta
+        if(height > 5) {
+             enemyPath.emplace_back(x, 5);
+             grid[5][x] = '#';
+        }
     }
-
     std::cout << "Harta (grila) " << width << "x" << height << " a fost creata." << std::endl;
 }
 
@@ -24,37 +24,36 @@ GameMap::~GameMap() {
     std::cout << "Harta jocului a fost distrusa." << std::endl;
 }
 
+// Constructor de Copiere actualizat
 GameMap::GameMap(const GameMap& other)
     : width(other.width),
       height(other.height),
-      playerLives(other.playerLives),
-      playerMoney(other.playerMoney),
       towers(other.towers),
       enemies(other.enemies),
       grid(other.grid),
-      enemyPath(other.enemyPath) // Copiem si calea
+      enemyPath(other.enemyPath),
+      player(other.player) // Copiaza Player
 {
     std::cout << "Harta jocului a fost COPIATA (Copy Constructor)." << std::endl;
 }
 
+// Operator= actualizat
 GameMap& GameMap::operator=(const GameMap& other) {
     std::cout << "Harta jocului a fost ATRIBUITA (Copy Assignment)." << std::endl;
-    if (this == &other) {
-        return *this;
-    }
+    if (this == &other) { return *this; }
     width = other.width;
     height = other.height;
-    playerLives = other.playerLives;
-    playerMoney = other.playerMoney;
     towers = other.towers;
     enemies = other.enemies;
     grid = other.grid;
-    enemyPath = other.enemyPath; // Copiem si calea
+    enemyPath = other.enemyPath;
+    player = other.player; // Copiaza Player
     return *this;
 }
 
+// buildTower actualizat
 bool GameMap::buildTower(const Tower& newTower) {
-    if (playerMoney < newTower.getCost()) {
+    if (!player.spendMoney(newTower.getCost())) {
         std::cout << "EROARE: Fonduri insuficiente!" << std::endl;
         return false;
     }
@@ -63,50 +62,66 @@ bool GameMap::buildTower(const Tower& newTower) {
     int y = newTower.getPosition().getY();
 
     if (y >= 0 && y < height && x >= 0 && x < width && grid[y][x] == '.') {
-        playerMoney -= newTower.getCost();
         towers.push_back(newTower);
         grid[y][x] = 'T';
-        std::cout << "Vrajitor " << newTower.getType() << " plasat! Bani ramasi: " << playerMoney << std::endl;
+        std::cout << "Vrajitor " << newTower.getType() << " plasat! Bani ramasi: " << player.getMoney() << std::endl;
         return true;
+    } else {
+        player.gainMoney(newTower.getCost()); // Dam banii inapoi
+        std::cout << "EROARE: Pozitie invalida sau ocupata!" << std::endl;
+        return false;
     }
-
-    std::cout << "EROARE: Pozitie invalida sau ocupata!" << std::endl;
-    return false;
 }
 
-// Functia spawn actualizata
+// spawnEnemy (ramane la fel)
 void GameMap::spawnEnemy(std::string type, int health, int moveCooldown) {
-    // Cream un inamic nou si ii dam calea hartii
     enemies.emplace_back(std::move(type), health, moveCooldown, enemyPath);
     std::cout << "Un blestem " << enemies.back().getType() << " a aparut pe harta!" << std::endl;
 }
 
-// Functia de update (tick)
+// Functie noua
+void GameMap::rewardPlayerForRound() {
+    // Exemplu: dam 10 XP pentru fiecare blestem ramas pe harta
+    int xpReward = enemies.size() * 10;
+    if (xpReward > 0) {
+        player.gainExperience(xpReward);
+    }
+}
+
+
+// updateGame actualizat
 void GameMap::updateGame() {
     std::cout << "\n--- ACTUALIZARE RUNDA ---" << std::endl;
 
-    // 1. Vrajitorii isi actualizeaza atacurile
     for (Tower& tower : towers) {
         tower.updateAttack(enemies);
     }
 
-    // 2. Blestemele isi actualizeaza miscarea
+    int enemiesDefeatedThisRound = 0; // Contor pt XP
     for (Enemy& enemy : enemies) {
+        int healthBefore = enemy.getHealth(); // Verificam daca moare
         enemy.updateMovement();
 
-        // Verificam daca a ajuns la final
         if (enemy.getHealth() > 0 && enemy.hasFinishedPath()) {
-            playerLives--;
-            enemy.takeDamage(9999); // Omoram inamicul
-            std::cout << "Un blestem a ajuns la baza! Vieti ramase: " << playerLives << std::endl;
+            player.loseLife();
+            enemy.takeDamage(9999);
+            std::cout << "Un blestem a ajuns la baza! Vieti ramase: " << player.getLives() << std::endl;
+        }
+
+        // Daca inamicul a murit in aceasta runda (din atac sau ajuns la baza)
+        if(healthBefore > 0 && enemy.getHealth() <= 0) {
+            enemiesDefeatedThisRound++;
         }
     }
 
-    // 3. Curatam blestemele moarte
+    // Dam XP pentru blestemele invinse
+    if(enemiesDefeatedThisRound > 0) {
+        player.gainExperience(enemiesDefeatedThisRound * 25); // 25 XP per blestem
+    }
+
+    // Curatam blestemele moarte
     auto it = std::ranges::remove_if(enemies,
-                                     [](const Enemy& e) {
-                                         return e.getHealth() <= 0;
-                                     }).begin();
+                                     [](const Enemy& e) { return e.getHealth() <= 0; }).begin();
 
     if (it != enemies.end()) {
         std::cout << "Eliminam blestemele invinse..." << std::endl;
@@ -114,10 +129,9 @@ void GameMap::updateGame() {
     }
 }
 
-// Operatorul << (ramane la fel ca inainte)
+// Operator<< actualizat
 std::ostream& operator<<(std::ostream& os, const GameMap& map) {
     std::vector<std::vector<char>> tempGrid = map.grid;
-
     for (const Enemy& e : map.enemies) {
         int x = e.getPosition().getX();
         int y = e.getPosition().getY();
@@ -129,8 +143,8 @@ std::ostream& operator<<(std::ostream& os, const GameMap& map) {
     }
 
     os << "====== STAREA HARTII ======\n";
-    os << "Vieti: " << map.playerLives << " | Bani: " << map.playerMoney;
-    os << " | Vrajitori: " << map.towers.size() << " | Blesteme: " << map.enemies.size() << "\n";
+    os << map.player << "\n"; // Afisam player-ul
+    os << "Vrajitori: " << map.towers.size() << " | Blesteme: " << map.enemies.size() << "\n";
 
     for (int y = 0; y < map.height; ++y) {
         for (int x = 0; x < map.width; ++x) {

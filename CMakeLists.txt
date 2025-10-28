@@ -57,6 +57,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         Tower.h
         GameMap.cpp
         GameMap.h
+        Player.cpp
+        Player.h
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )
