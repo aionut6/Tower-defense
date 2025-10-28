@@ -1,31 +1,33 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <vector>
 #include "Position.h"
 #include "Enemy.h"
 
 class Tower { //sorcerer
 private:
-    std::string type;//"Grade 3", "Special Grade" etc
+    std::string type;
     int damage;
-    int range; //raza tehnicii
+    int range;
     int cost;
     Position placement;
 
-    //verifica daca inamicul e in raza turnului
+    int attackCooldown; // Cate "tick-uri" asteapta intre atacuri
+    int attackTimer; // Contor pana la urmatorul atac
+
     [[nodiscard]] bool isEnemyInRange(const Enemy& enemy) const;
 
 public:
-    //constructor
-    Tower(std::string type, int damage, int range, int cost, const Position& pos);
+    Tower(std::string type, int damage, int range, int cost, const Position& pos, int attackCooldown);
 
-    //getteri
     [[nodiscard]] const std::string& getType() const;
     [[nodiscard]] int getCost() const;
     [[nodiscard]] Position getPosition() const;
 
-    //ataca un inamic
-    void attack(Enemy& enemy) const;
+    // Functie noua de update, apelata de GameMap
+    // Primeste *toata* lista de inamici ca sa isi aleaga o tinta
+    void updateAttack(std::vector<Enemy>& enemies);
 
     friend std::ostream& operator<<(std::ostream& os, const Tower& tower);
 };

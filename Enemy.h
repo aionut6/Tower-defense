@@ -1,32 +1,37 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <vector>
 #include "Position.h"
 
 class Enemy { //class Curse
 private:
-    std::string type; //"Grade 3", "Special Grade" etc
+    std::string type;
     int health;
-    int speed;
     Position currentPosition;
 
-public:
-    Enemy(std::string type, int health, int speed, const Position& startPos);
+    std::vector<Position> path; // Calea prestabilita
+    int pathIndex; // Pozitia curenta pe cale
+    int moveCooldown; // Cate "tick-uri" asteapta inainte de a se misca
+    int moveTimer; // Contor pana la urmatoarea miscare
 
-    //getteri
+public:
+    // Constructor actualizat
+    Enemy(std::string type, int health, int moveCooldown, const std::vector<Position>& path);
+
+    // Getteri
     [[nodiscard]] const std::string& getType() const;
     [[nodiscard]] int getHealth() const;
-    [[nodiscard]] int getSpeed() const;
     [[nodiscard]] Position getPosition() const;
 
-    //actiuni
+    // Actiuni
     void takeDamage(int damageAmount);
 
-    //functiue pt slow/freeze
-    void setSpeed(int newSpeed);
+    // Functie noua de update, apelata de GameMap in fiecare runda
+    void updateMovement();
 
-    // functie publica noua: Harta o va folosi pentru a muta blestemul
-    void setPosition(const Position& newPos);
+    // Functie noua care verifica daca a ajuns la final
+    [[nodiscard]] bool hasFinishedPath() const;
 
     friend std::ostream& operator<<(std::ostream& os, const Enemy& enemy);
 };
