@@ -2,8 +2,8 @@
 
 Proiectul implementează mecanica de bază a unui joc Tower Defense într-o interfață bazată pe consolă (grilă de caractere), cu tematica Jujutsu kaisen.
 
-Turnurile au diferite atribute, diferite efecte asupra inamicilor, diferite preturi si diferit damage.
-Inamicii au hp-uri diferite, viteze diferite.
+-Turnurile au diferite atribute, diferite efecte asupra inamicilor, diferite preturi si diferit damage.
+-Inamicii au hp-uri diferite, viteze diferite.
 
 ## TODO: 
 Ulterior jocul va beneficia de 5 nivele cu 5 harti diferite, cu locuri prestabilite pentru turnuri si cu un path si wave-uri de inamici.
