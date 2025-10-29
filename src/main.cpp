@@ -46,7 +46,7 @@ int main() {
     std::cout << "\n--- Harta Copiata ---" << std::endl;
     std::cout << mapCopiata;
 
-    std::cout << "\n--- Verificare Player (pentru Cppcheck) ---" << std::endl;
+    std::cout << "\n--- Verificare Player ---" << std::endl;
     std::cout << "Nume Player: " << map.getPlayerName() << std::endl;
     std::cout << "Nivel Player: " << map.getPlayerLevel() << std::endl;
     std::cout << "Experienta Player: " << map.getPlayerExperience() << std::endl;
